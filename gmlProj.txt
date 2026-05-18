@@ -1,0 +1,30 @@
+Application, services & system
+monitoring using temporal graph
+convolution network
+
+As modern software architectures shift toward highly distributed
+microservices, traditional monitoring strategies—relying on static thresholds
+and isolated rule-based alerts—increasingly fail to capture the complex,
+cascading dependencies inherent in cloud-native environments. This project
+proposes a novel predictive monitoring framework leveraging Temporal
+Graph Convolutional Networks (T-GCNs) to model the evolution of system
+health in real-time.
+
+By representing the infrastructure as a dynamic interaction graph, where
+nodes signify microservices or containers and edges represent network
+traces and API calls, the system effectively captures both spatial
+dependencies and temporal patterns. High-fidelity telemetry data, including
+CPU utilization, memory pressure, and request latency, are integrated as
+dynamic node features. The model architecture utilizes a hybrid approach—
+employing Graph Convolutional Networks (GCNs) to extract structural
+features and Long Short-Term Memory (LSTM) or Temporal Graph
+Networks (TGNs) to process the chronological sequence of system states.
+The primary objective is to transition from reactive troubleshooting to
+proactive failure prediction, automated Root Cause Analysis (RCA), and
+early-warning anomaly detection. By learning how performance degradation
+propagates through the service mesh, this framework enables DevOps
+teams to identify bottlenecks and potential outages before they impact the
+end-user. Experimental results suggest that this graph-centric temporal
+approach significantly improves the accuracy of failure forecasting and
+reduces the Mean Time to Detection (MTTD) compared to traditional time
+series analysis.

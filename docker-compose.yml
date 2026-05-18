@@ -1,0 +1,73 @@
+version: '3.8'
+
+services:
+  app:
+    build: ./src
+    ports:
+      - "8000:8000"
+    environment:
+      - SERVICE_NAME=app
+      - OTEL_EXPORTER_OTLP_ENDPOINT=http://otel-collector:4317
+      - LOG_FILE=/data/telemetry_data.csv
+    volumes:
+      - ./data:/data
+    depends_on:
+      - otel-collector
+      - svc1
+      - svc2
+      - svc3
+
+  svc1:
+    build: ./src
+    environment:
+      - SERVICE_NAME=svc1
+      - OTEL_EXPORTER_OTLP_ENDPOINT=http://otel-collector:4317
+      - LOG_FILE=/data/telemetry_data.csv
+    volumes:
+      - ./data:/data
+    depends_on:
+      - otel-collector
+
+  svc2:
+    build: ./src
+    environment:
+      - SERVICE_NAME=svc2
+      - OTEL_EXPORTER_OTLP_ENDPOINT=http://otel-collector:4317
+      - LOG_FILE=/data/telemetry_data.csv
+    volumes:
+      - ./data:/data
+    depends_on:
+      - otel-collector
+
+  svc3:
+    build: ./src
+    environment:
+      - SERVICE_NAME=svc3
+      - OTEL_EXPORTER_OTLP_ENDPOINT=http://otel-collector:4317
+      - LOG_FILE=/data/telemetry_data.csv
+    volumes:
+      - ./data:/data
+    depends_on:
+      - otel-collector
+
+  otel-collector:
+    image: otel/opentelemetry-collector:0.100.0
+    command: ["--config=/etc/otel-collector-config.yaml"]
+    volumes:
+      - ./otel-collector-config.yaml:/etc/otel-collector-config.yaml
+    ports:
+      - "4317:4317"
+      - "4318:4318"
+
+  prometheus:
+    image: prom/prometheus:latest
+    volumes:
+      - ./prometheus.yml:/etc/prometheus/prometheus.yml
+    ports:
+      - "9090:9090"
+
+  jaeger:
+    image: jaegertracing/all-in-one:latest
+    ports:
+      - "16686:16686"
+      - "14250:14250"

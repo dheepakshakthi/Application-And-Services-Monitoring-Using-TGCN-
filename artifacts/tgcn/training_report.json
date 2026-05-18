@@ -1,0 +1,62 @@
+{
+  "config": {
+    "window_seconds": 5.0,
+    "seq_len": 12,
+    "horizon": 1,
+    "epochs": 60,
+    "batch_size": 64,
+    "lr": 0.001,
+    "gcn_hidden": 32,
+    "gru_hidden": 64,
+    "dropout": 0.1,
+    "seed": 42,
+    "in_features": 12,
+    "num_nodes": 4
+  },
+  "nodes": [
+    "app",
+    "svc1",
+    "svc2",
+    "svc3"
+  ],
+  "edges": [
+    [
+      "app",
+      "svc1"
+    ],
+    [
+      "app",
+      "svc2"
+    ],
+    [
+      "app",
+      "svc3"
+    ],
+    [
+      "svc1",
+      "svc2"
+    ],
+    [
+      "svc2",
+      "svc3"
+    ]
+  ],
+  "thresholds": {
+    "latency_p90": 2432.7590000000014,
+    "users_p90": 592.0,
+    "cpu_p90": 9.9,
+    "mem_p90": 24.7
+  },
+  "history_last": {
+    "train_loss": 0.8586004376411438,
+    "val_loss": 1.0358347296714783,
+    "train_acc": 0.7506540685892105,
+    "val_acc": 0.6541294693946839
+  },
+  "metrics": {
+    "test_accuracy": 0.4425925925925926,
+    "test_precision": 0.7601713062098501,
+    "test_recall": 0.42011834319526625,
+    "test_f1": 0.5411585365853658
+  }
+}

@@ -71,3 +71,23 @@ services:
     ports:
       - "16686:16686"
       - "14250:14250"
+
+  portal:
+    build:
+      context: .
+      dockerfile: portal/Dockerfile
+    environment:
+      - APP_URL=http://app:8000/
+      - TELEMETRY_FILE=/data/telemetry_data.csv
+      - MODEL_BUNDLE=/artifacts/tgcn/tgcn_inference_bundle.pt
+      - PORT=5050
+    volumes:
+      - ./data:/data
+      - ./artifacts:/artifacts
+    ports:
+      - "5050:5050"
+    depends_on:
+      - app
+      - svc1
+      - svc2
+      - svc3

@@ -1,1 +1,4 @@
 /master
+.venv
+/artifacts
+/portal

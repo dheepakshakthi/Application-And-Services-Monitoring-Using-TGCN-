@@ -108,3 +108,51 @@ To stop the services later:
 ```bash
 docker-compose down
 ```
+
+## TGCN Training and Inference Pipeline
+
+The repository now includes a complete TGCN training pipeline for `data/telemetry_data.csv`:
+
+- **Trainer**: `src/train_tgcn.py`
+- **Inference script**: `src/predict_tgcn.py`
+- **Reusable model/data utilities**: `src/tgcn_pipeline.py`
+
+### Run with the existing virtual environment in `master`
+
+```powershell
+.\master\Scripts\python.exe src\train_tgcn.py --data data\telemetry_data.csv --output artifacts\tgcn
+```
+
+This generates:
+
+- `artifacts/tgcn/tgcn_state_dict.pt` (model weights)
+- `artifacts/tgcn/tgcn_inference_bundle.pt` (weights + config + graph/scaler metadata)
+- `artifacts/tgcn/training_report.json` (evaluation summary)
+- `artifacts/tgcn/plots/graph_temporal_instances.png` (nodes, edges, temporal graph snapshots)
+- `artifacts/tgcn/plots/training_loss_accuracy.png` (training loss/accuracy curves)
+
+### Run inference on latest telemetry windows
+
+```powershell
+.\master\Scripts\python.exe src\predict_tgcn.py --data data\telemetry_data.csv --model-bundle artifacts\tgcn\tgcn_inference_bundle.pt
+```
+
+## Live Controlled Inference Portal
+
+The Docker stack now includes a Flask `portal` service for controlled load generation and live TGCN inference.
+
+- `http://localhost:5050/control`: control panel for `users` and `day/night` mode (plus driver controls).
+- `http://localhost:5050/home`: live inference status + CPU/memory/network/latency charts + latest service logs.
+
+### Workflow
+
+1. Train once to create the model bundle:
+   ```powershell
+   .\master\Scripts\python.exe src\train_tgcn.py --data data\telemetry_data.csv --output artifacts\tgcn
+   ```
+2. Start services including the portal:
+   ```bash
+   docker-compose up -d --build
+   ```
+3. Open `/control`, set `users` and `day/night`, then start the driver.
+4. Open `/home` to monitor live TGCN predictions and telemetry trends.

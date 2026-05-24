@@ -76,3 +76,42 @@ Where $GC(X_t, A)$ is the output of the GCN layer at time $t$, and $h_{t-1}$ is 
 -   **Visualization:** 
     - `training_loss_accuracy.png`: Monitors convergence.
     - `graph_temporal_instances.png`: Visualizes the graph topology and node states over various time snapshots.
+
+---
+
+## 4. Project Summary & TGCN Usage
+
+### How TGCN is used in this project
+The TGCN model in this project is used as a **predictive monitoring engine** for the microservices architecture. It treats the entire distributed system as a dynamic graph to transition from reactive troubleshooting to proactive failure prediction.
+
+*   **Spatial Features (GCN):** Captures the dependencies between services. For example, if `Svc2` is failing, the GCN layer understands its relationship with `Svc1` (the caller) and `Svc3` (the dependency), allowing it to model cascading failures.
+*   **Temporal Features (GRU):** Captures the "trend" of metrics over time. The GRU layer analyzes a sequence of previous states (e.g., the last 12 windows of 5 seconds each) to identify patterns like gradual memory leaks or slow-building traffic spikes.
+*   **Node Features:** Each node (service) in the graph has a 12-dimensional feature vector (latency, CPU, memory, etc.) along with temporal context (hour encoding).
+
+### How the project works (Workflow)
+
+The project follows a complete lifecycle from data generation to live inference:
+
+#### Step A: Data Generation & Collection
+1.  **Microservices Stack:** A set of services (`App`, `Svc1`, `Svc2`, `Svc3`) runs in Docker containers.
+2.  **Telemetry Pipeline:** OpenTelemetry collectors gather traces and metrics, while Prometheus and Jaeger store them.
+3.  **Traffic Generator:** A script (`traffic_generator.py`) simulates realistic traffic, injecting both normal patterns and abnormalities (DDoS, resource exhaustion, crashes).
+4.  **Telemetry Aggregation:** All data is logged into `data/telemetry_data.csv`.
+
+#### Step B: Training Phase (`train_tgcn.py`)
+1.  **Graph Construction:** The system reads the CSV and builds an adjacency matrix based on service-to-service call traces.
+2.  **Windowing & Labeling:** It slices telemetry data into discrete windows and labels them as "abnormal" if metrics exceed thresholds or crashes are detected.
+3.  **Training:** The TGCN model is trained to predict the state of the *next* window based on a sequence of previous ones.
+4.  **Artifacts:** The trained weights and metadata are saved into an `inference_bundle.pt`.
+
+#### Step C: Inference & Monitoring (`predict_tgcn.py` & Portal)
+1.  **Live Prediction:** The inference script takes the latest window of telemetry and predicts which services are most likely to experience an anomaly in the near future.
+2.  **Visualization Portal:** A Flask-based web interface displays live risk scores, telemetry trends, and allows manual fault injection to test the model.
+
+### Summary of Component Roles
+| Component | Purpose |
+| :--- | :--- |
+| `src/tgcn_pipeline.py` | Defines the TGCN model architecture (GCN + GRU) and data preprocessing logic. |
+| `src/train_tgcn.py` | Trains the model on historical telemetry and generates evaluation plots. |
+| `src/predict_tgcn.py` | Loads the trained model to perform real-time node risk classification. |
+| `portal/app.py` | Provides the UI for controlling the simulation and viewing live TGCN insights. |
